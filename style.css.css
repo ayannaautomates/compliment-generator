@@ -1,0 +1,131 @@
+/* Interactive background canvas overlay */
+#interactive-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Allows direct clicks to pass straight through to card elements */
+    z-index: 1;
+}
+
+/* Dreamy CSS Aurora Borealis ribbons */
+.aurora-container {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.8;
+    transition: opacity 1s ease;
+}
+
+.aurora-layer {
+    position: absolute;
+    filter: blur(60px);
+    opacity: 0.5;
+    mix-blend-mode: screen;
+    will-change: transform, opacity;
+}
+
+/* Aurora ribbon dynamics: smooth morphing coordinates */
+.aurora-1 {
+    top: -20%;
+    left: -10%;
+    width: 80vw;
+    height: 70vh;
+    background: radial-gradient(circle, rgba(20, 184, 166, 0.4) 0%, rgba(13, 148, 136, 0) 70%);
+    animation: aurora-drift-one 18s ease-in-out infinite alternate;
+}
+
+.aurora-2 {
+    top: -15%;
+    right: -10%;
+    width: 75vw;
+    height: 65vh;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.35) 0%, rgba(147, 51, 234, 0) 75%);
+    animation: aurora-drift-two 22s ease-in-out infinite alternate;
+}
+
+.aurora-3 {
+    bottom: -10%;
+    left: 15%;
+    width: 90vw;
+    height: 60vh;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, rgba(37, 99, 235, 0) 70%);
+    animation: aurora-drift-three 26s ease-in-out infinite alternate;
+}
+
+/* Sunbeam shapes used during Light Mode */
+.sunbeam-layer {
+    position: absolute;
+    top: -30%;
+    left: 20%;
+    width: 120vw;
+    height: 120vh;
+    background: repeating-linear-gradient(
+        55deg,
+        rgba(255, 209, 102, 0.15) 0px,
+        rgba(255, 209, 102, 0.15) 40px,
+        transparent 40px,
+        transparent 120px
+    );
+    filter: blur(25px);
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+    transition: opacity 1s ease;
+}
+
+html:not(.dark) .sunbeam-layer {
+    opacity: 0.6;
+}
+
+html:not(.dark) .aurora-container {
+    opacity: 0.35;
+}
+
+/* Ambient background movement animations */
+@keyframes aurora-drift-one {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+    50% { transform: translate(10vw, 5vh) scale(1.15) rotate(15deg); }
+    100% { transform: translate(-5vw, -5vh) scale(0.9) rotate(-10deg); }
+}
+
+@keyframes aurora-drift-two {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.25; }
+    50% { transform: translate(-12vw, 8vh) scale(0.85) rotate(-20deg); opacity: 0.45; }
+    100% { transform: translate(8vw, -3vh) scale(1.1) rotate(15deg); opacity: 0.25; }
+}
+
+@keyframes aurora-drift-three {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(5vw, -10vh) scale(1.2); }
+    100% { transform: translate(-8vw, 5vh) scale(0.9); }
+}
+
+/* Fade transitions for compliment card switches */
+.fade-transition {
+    transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-hidden {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+}
+
+/* Sleek custom scrollbar style overlay */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.3);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.5);
+}
