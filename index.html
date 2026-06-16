@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Spark | Interactive Compliment Generator & Builder</title>
+    
+    <!-- Google Fonts: Nunito (Compliments) and Lato (UI/Button) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Nunito:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS for modern utility styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons for clean UI components -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        coral: {
+                            500: '#FF6B6B',
+                            600: '#FA5252',
+                        },
+                        sunny: {
+                            400: '#FFD166',
+                            500: '#FCC419',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        display: ['Nunito', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Floating decoration keyframes */
+        @keyframes float-slower {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+        @keyframes float-faster {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(-5deg); }
+        }
+        
+        .floating-bubble-1 {
+            animation: float-slower 6s ease-in-out infinite;
+        }
+        
+        .floating-bubble-2 {
+            animation: float-faster 4s ease-in-out infinite;
+        }
+
+        /* Smooth slide and opacity transition state */
+        .fade-transition {
+            transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+        }
+        
+        .fade-hidden {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        /* Custom Scrollbar for modern looks */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col justify-between font-sans transition-colors duration-300 relative overflow-x-hidden">
+
+    <!-- Decorative background elements -->
+    <div class="absolute -top-12 -left-12 w-64 h-64 bg-coral-500/10 dark:bg-coral-500/5 rounded-full blur-3xl pointer-events-none floating-bubble-1"></div>
+    <div class="absolute top-1/2 -right-16 w-80 h-80 bg-sunny-400/20 dark:bg-sunny-400/5 rounded-full blur-3xl pointer-events-none floating-bubble-2"></div>
+
+    <!-- Header / Navbar -->
+    <header class="w-full max-w-5xl mx-auto px-6 py-5 flex items-center justify-between z-10">
+        <div class="flex items-center gap-2">
+            <div class="bg-coral-500 text-white p-2 rounded-xl shadow-md shadow-coral-500/30">
+                <i data-lucide="sparkles" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <span class="font-black tracking-wider text-xl font-display text-coral-500">DAILY SPARK</span>
+                <p class="text-xs text-gray-400 dark:text-gray-500 font-medium tracking-wide">YOUR INSTANT CONFIDENCE BOOST</p>
+            </div>
+        </div>
+        
+        <!-- Action controls (Theme and Stats) -->
+        <div class="flex items-center gap-3">
+            <button id="theme-toggle" class="p-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-coral-500 dark:hover:border-coral-500 transition-all shadow-sm group" title="Toggle Theme">
+                <i id="theme-icon-light" data-lucide="sun" class="w-5 h-5 text-gray-500 hover:text-coral-500 dark:hidden"></i>
+                <i id="theme-icon-dark" data-lucide="moon" class="w-5 h-5 text-gray-400 hover:text-coral-500 hidden dark:block"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-1 w-full max-w-5xl mx-auto px-4 md:px-6 py-6 flex flex-col lg:flex-row items-center justify-center gap-8 z-10">
+        
+        <!-- Left Column: The Main Card Display -->
+        <section class="w-full lg:w-3/5 flex flex-col gap-4">
+            <!-- Main Display Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-10 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[380px] md:min-h-[420px]">
+                
+                <!-- Card Header and Tag selection -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 dark:border-gray-700/50 pb-4">
+                    <div class="flex items-center gap-2">
+                        <span id="category-badge" class="px-3 py-1 bg-coral-500/10 dark:bg-coral-500/20 text-coral-500 font-bold text-xs rounded-full uppercase tracking-widest font-display">
+                            General
+                        </span>
+                    </div>
+                    <!-- Small Sparkle Animation Frame -->
+                    <div class="flex gap-1 text-sunny-400">
+                        <i data-lucide="sparkle" class="w-4 h-4 animate-spin" style="animation-duration: 6s;"></i>
+                        <i data-lucide="sparkle" class="w-3 h-3 animate-bounce"></i>
+                    </div>
+                </div>
+
+                <!-- Main Text Space -->
+                <div class="my-8 flex flex-col justify-center items-center text-center">
+                    <!-- Giant decorative double quote -->
+                    <i data-lucide="quote" class="w-12 h-12 text-gray-100 dark:text-gray-700/60 mb-2 rotate-180 self-start"></i>
+                    
+                    <p id="compliment-display" class="font-display font-black text-2xl md:text-3xl lg:text-4xl leading-snug md:leading-relaxed text-gray-800 dark:text-gray-100 italic select-all py-2 fade-transition">
+                        Click the button to generate a fresh dynamic spark of joy!
+                    </p>
+                    
+                    <i data-lucide="quote" class="w-12 h-12 text-gray-100 dark:text-gray-700/60 mt-2 self-end"></i>
+                </div>
+
+                <!-- Card Actions (Copy & Share) & Generator Trigger -->
+                <div class="border-t border-gray-100 dark:border-gray-700/50 pt-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <!-- Quick Actions -->
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
+                        <button id="copy-btn" class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-coral-500 transition-all" title="Copy Compliment">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                            <span>Copy</span>
+                        </button>
+                        <button id="share-btn" class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-coral-500 transition-all" title="Share Compliment on X">
+                            <i data-lucide="twitter" class="w-4 h-4"></i>
+                            <span>Share</span>
+                        </button>
+                    </div>
+
+                    <!-- Generator trigger button -->
+                    <button id="next-btn" class="w-full sm:w-auto px-8 py-3.5 bg-coral-500 hover:bg-sunny-400 text-white hover:text-gray-900 rounded-2xl font-bold font-display shadow-lg shadow-coral-500/20 hover:shadow-sunny-400/20 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center gap-2">
+                        <span>Get a New Compliment</span>
+                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Custom Category Tabs -->
+            <div class="bg-gray-100 dark:bg-gray-800/60 p-1.5 rounded-2xl flex flex-wrap gap-1 justify-between shadow-inner">
+                <button data-cat="all" class="category-tab flex-1 py-2 px-3 text-sm font-bold rounded-xl transition-all duration-200 text-coral-500 bg-white dark:bg-gray-800 shadow-sm">
+                    All
+                </button>
+                <button data-cat="personal" class="category-tab flex-1 py-2 px-3 text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-xl transition-all duration-200">
+                    Personal
+                </button>
+                <button data-cat="work" class="category-tab flex-1 py-2 px-3 text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-xl transition-all duration-200">
+                    Work
+                </button>
+                <button data-cat="mindset" class="category-tab flex-1 py-2 px-3 text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-xl transition-all duration-200">
+                    Mindset
+                </button>
+            </div>
+        </section>
+
+        <!-- Right Column: Interactive Add Compliment / Pool Manager -->
+        <section class="w-full lg:w-2/5 flex flex-col gap-5 h-full self-stretch justify-start">
+            <!-- Quick Creator Block -->
+            <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg shadow-gray-200/40 dark:shadow-none border border-gray-100 dark:border-gray-700/50 flex flex-col gap-4">
+                <div class="flex items-center gap-2 mb-1">
+                    <i data-lucide="pen-tool" class="w-5 h-5 text-coral-500"></i>
+                    <h2 class="font-display font-black text-lg">Add Custom Spark</h2>
+                </div>
+                
+                <form id="add-compliment-form" class="flex flex-col gap-3">
+                    <div>
+                        <label for="new-text" class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">Your Compliment Text</label>
+                        <textarea id="new-text" rows="2" maxlength="110" class="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 focus:border-coral-500 dark:focus:border-coral-500 focus:ring-1 focus:ring-coral-500 outline-none resize-none text-sm transition-all" placeholder="Enter a heartwarming custom compliment... (Max 110 chars)" required></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label for="new-category" class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">Category</label>
+                            <select id="new-category" class="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 focus:border-coral-500 dark:focus:border-coral-500 text-sm font-semibold transition-all">
+                                <option value="personal">Personal</option>
+                                <option value="work">Work</option>
+                                <option value="mindset">Mindset</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full py-2.5 bg-coral-500 hover:bg-coral-600 text-white font-bold text-sm rounded-xl transition-all shadow-md shadow-coral-500/10 flex items-center justify-center gap-1.5">
+                                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                                <span>Save Spark</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Dashboard / Pool Stats -->
+            <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg shadow-gray-200/40 dark:shadow-none border border-gray-100 dark:border-gray-700/50 flex-1 flex flex-col justify-between gap-4">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="layers" class="w-5 h-5 text-coral-500"></i>
+                            <h2 class="font-display font-black text-lg">Your Spark Pool</h2>
+                        </div>
+                        <span id="pool-counter" class="text-xs font-bold px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 rounded-full">
+                            15 items
+                        </span>
+                    </div>
+                    
+                    <!-- Simplified visual tracker -->
+                    <div class="grid grid-cols-3 gap-2 mt-4 text-center">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700">
+                            <span id="count-personal" class="block font-black text-lg text-coral-500 font-display">0</span>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Personal</span>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700">
+                            <span id="count-work" class="block font-black text-lg text-teal-500 font-display">0</span>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Work</span>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700">
+                            <span id="count-mindset" class="block font-black text-lg text-purple-500 font-display">0</span>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Mindset</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-coral-500/5 dark:bg-coral-500/10 p-3 rounded-2xl border border-coral-500/10 flex items-center gap-3">
+                    <i data-lucide="info" class="w-5 h-5 text-coral-500 flex-shrink-0"></i>
+                    <p class="text-xs text-coral-600 dark:text-coral-400 leading-relaxed font-semibold">
+                        Custom additions are active for this browser session. Mix and match to curate your energy!
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Interactive Custom Toast Notification Box -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 bg-gray-950 text-white dark:bg-white dark:text-gray-900 px-5 py-3.5 rounded-2xl shadow-xl flex items-center gap-2 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-500"></i>
+        <span id="toast-message" class="text-sm font-bold">Compliment copied to clipboard!</span>
+    </div>
+
+    <!-- Footer Area -->
+    <footer class="w-full max-w-5xl mx-auto px-6 py-6 border-t border-gray-100 dark:border-gray-800 text-center flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400 dark:text-gray-500">
+        <p class="font-semibold">Designed with positive energy ✨ — Built with Vanilla JS & Tailwind</p>
+        <p>&copy; 2026 Daily Spark Portfolio Inc.</p>
+    </footer>
+
+    <!-- App Logic Script -->
+    <script>
+        // 1. Initial structured collection of compliments with specific categories
+        const defaultCompliments = [
+            // PERSONAL CATEGORY
+            { text: "Your optimism is incredibly contagious and makes everyone around you smile.", category: "personal" },
+            { text: "You have a natural ability to bring out the absolute best in others.", category: "personal" },
+            { text: "The world is a significantly brighter and warmer place with you in it.", category: "personal" },
+            { text: "Your capacity for kindness, empathy, and listening is deeply inspiring.", category: "personal" },
+            { text: "You possess the rare gift of making people feel truly seen, heard, and valued.", category: "personal" },
+            
+            // WORK CATEGORY
+            { text: "Your creative perspective on complex issues is a breath of fresh air.", category: "work" },
+            { text: "That strategic idea you had in your last project was genuinely brilliant.", category: "work" },
+            { text: "Your exceptional eye for detail elevates everything you collaborate on.", category: "work" },
+            { text: "Your dedication, resilience, and stellar work ethic do not go unnoticed.", category: "work" },
+            { text: "You turn everyday collaborative moments into highly productive sessions.", category: "work" },
+
+            // MINDSET CATEGORY
+            { text: "You are far more resilient, capable, and smart than you give yourself credit for.", category: "mindset" },
+            { text: "Your courage to face obstacles and grow through them is highly remarkable.", category: "mindset" },
+            { text: "You have an beautiful ability to find the silver linings in unexpected places.", category: "mindset" },
+            { text: "The integrity and thought you bring to your choices is highly commendable.", category: "mindset" },
+            { text: "You consistently show up with an open heart and a courageous mindset.", category: "mindset" }
+        ];
+
+        // 2. Active pool tracking variable (persisting user additions in active memory)
+        let activeCompliments = [...defaultCompliments];
+        let currentCategoryFilter = "all";
+        let lastDisplayedIndex = -1;
+
+        // 3. Cache DOM Element Targets
+        const textDisplay = document.getElementById('compliment-display');
+        const badgeDisplay = document.getElementById('category-badge');
+        const nextButton = document.getElementById('next-btn');
+        const copyButton = document.getElementById('copy-btn');
+        const shareButton = document.getElementById('share-btn');
+        const categoryTabs = document.querySelectorAll('.category-tab');
+        
+        // Counter Elements
+        const totalCounter = document.getElementById('pool-counter');
+        const personalCounter = document.getElementById('count-personal');
+        const workCounter = document.getElementById('count-work');
+        const mindsetCounter = document.getElementById('count-mindset');
+
+        // Form elements
+        const creatorForm = document.getElementById('add-compliment-form');
+        const inputTextField = document.getElementById('new-text');
+        const inputCategoryField = document.getElementById('new-category');
+
+        // Theme and UI System selectors
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+
+        // 4. Initialize Lucide Icons helper
+        function initIcons() {
+            lucide.createIcons();
+        }
+
+        // 5. Utility: Get items currently matching active category filter
+        function getFilteredCompliments() {
+            if (currentCategoryFilter === "all") {
+                return activeCompliments;
+            }
+            return activeCompliments.filter(item => item.category === currentCategoryFilter);
+        }
+
+        // 6. Utility: Safely fetch random compliment preventing consecutive duplicates
+        function getNextCompliment() {
+            const filteredPool = getFilteredCompliments();
+            
+            if (filteredPool.length === 0) {
+                return { text: "No compliments in this category yet! Try adding your own below.", category: currentCategoryFilter };
+            }
+
+            if (filteredPool.length === 1) {
+                return filteredPool[0];
+            }
+
+            let randomIndex;
+            let chosenCompliment;
+            
+            do {
+                randomIndex = Math.floor(Math.random() * filteredPool.length);
+                chosenCompliment = filteredPool[randomIndex];
+            } while (chosenCompliment.text === textDisplay.textContent);
+
+            return chosenCompliment;
+        }
+
+        // 7. Action: Update the core card component UI with dynamic animations
+        function refreshDisplay(forceCompliment = null) {
+            const compliment = forceCompliment || getNextCompliment();
+
+            // Trigger Fade-Out Animation Stage
+            textDisplay.classList.add('fade-hidden');
+            
+            setTimeout(() => {
+                // Change underlying content values
+                textDisplay.textContent = compliment.text;
+                
+                // Set and update style badge colors matching the category dynamics
+                badgeDisplay.textContent = compliment.category;
+                badgeDisplay.className = "px-3 py-1 font-bold text-xs rounded-full uppercase tracking-widest font-display ";
+                
+                if (compliment.category === 'personal') {
+                    badgeDisplay.classList.add('bg-coral-500/10', 'text-coral-500', 'dark:bg-coral-500/20');
+                } else if (compliment.category === 'work') {
+                    badgeDisplay.classList.add('bg-teal-500/10', 'text-teal-600', 'dark:bg-teal-500/20', 'dark:text-teal-400');
+                } else if (compliment.category === 'mindset') {
+                    badgeDisplay.classList.add('bg-purple-500/10', 'text-purple-600', 'dark:bg-purple-500/20', 'dark:text-purple-400');
+                } else {
+                    badgeDisplay.classList.add('bg-gray-500/10', 'text-gray-600', 'dark:bg-gray-500/20', 'dark:text-gray-400');
+                }
+
+                // Trigger Fade-In stage
+                textDisplay.classList.remove('fade-hidden');
+            }, 250);
+        }
+
+        // 8. Action: Toast Box Alerts (Replacer for default user alerts)
+        let toastTimeout = null;
+        function triggerToast(message) {
+            toastMessage.textContent = message;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            if (toastTimeout) clearTimeout(toastTimeout);
+
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 2500);
+        }
+
+        // 9. Action: Copy directly to clipboard
+        function copyComplimentToClipboard() {
+            const textToCopy = textDisplay.textContent;
+            
+            // Standard fallback using DOM selection mechanics
+            const el = document.createElement('textarea');
+            el.value = textToCopy;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            
+            triggerToast("Copied compliment to clipboard! 📋");
+        }
+
+        // 10. Action: Share directly on X/Twitter platform
+        function shareOnX() {
+            const text = encodeURIComponent(`"${textDisplay.textContent}" — Powered by Daily Spark ✨`);
+            const url = `https://twitter.com/intent/tweet?text=${text}`;
+            window.open(url, '_blank');
+        }
+
+        // 11. UI Update: Refresh Stats Tracker metrics
+        function updatePoolStatistics() {
+            totalCounter.textContent = `${activeCompliments.length} item${activeCompliments.length === 1 ? '' : 's'}`;
+            
+            const personal = activeCompliments.filter(item => item.category === 'personal').length;
+            const work = activeCompliments.filter(item => item.category === 'work').length;
+            const mindset = activeCompliments.filter(item => item.category === 'mindset').length;
+
+            personalCounter.textContent = personal;
+            workCounter.textContent = work;
+            mindsetCounter.textContent = mindset;
+        }
+
+        // 12. Action: Submitting/Saving New Card Form
+        creatorForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const text = inputTextField.value.trim();
+            const category = inputCategoryField.value;
+
+            if (!text) return;
+
+            // Save new item directly to tracking array index
+            const newCompliment = { text, category };
+            activeCompliments.push(newCompliment);
+
+            // Reset inputs beautifully
+            inputTextField.value = '';
+            
+            // Trigger feedback toast and statistics update
+            triggerToast("New Compliment Spark Saved! ✨");
+            updatePoolStatistics();
+            
+            // Auto switch view to show the newly added card immediately!
+            refreshDisplay(newCompliment);
+        });
+
+        // 13. Action: Handle Category Tab Filtering
+        categoryTabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                // Update active tab styles
+                categoryTabs.forEach(t => {
+                    t.className = "category-tab flex-1 py-2 px-3 text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-xl transition-all duration-200";
+                });
+                
+                tab.className = "category-tab flex-1 py-2 px-3 text-sm font-bold rounded-xl transition-all duration-200 text-coral-500 bg-white dark:bg-gray-800 shadow-sm";
+                
+                // Update active criteria selection and refresh view
+                currentCategoryFilter = tab.getAttribute('data-cat');
+                refreshDisplay();
+            });
+        });
+
+        // 14. Action: Dark/Light Visual Theme Toggle
+        themeToggleBtn.addEventListener('click', () => {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
+        });
+
+        // Initial setup for default color preferences
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // 15. Attach Event Triggers
+        nextButton.addEventListener('click', () => refreshDisplay());
+        copyButton.addEventListener('click', copyComplimentToClipboard);
+        shareButton.addEventListener('click', shareOnX);
+
+        // 16. Window Load Lifecycle
+        window.addEventListener('DOMContentLoaded', () => {
+            initIcons();
+            updatePoolStatistics();
+            refreshDisplay(); // Initial random compliment on page load
+        });
+    </script>
+</body>
+</html>
